@@ -104,11 +104,12 @@ public class Tuple implements Serializable {
     public String toString() {
         // some code goes here
         String ret = "";
+        //System.out.println(fieldList.size());
         for (int i = 0; i < fieldList.size(); i++) {
             if (i == 0) {
                 ret += fieldList.get(i).toString();
             } else {
-                ret = ret + '\t' + fieldList.get(i).toString();
+                ret = ret + "\t" + fieldList.get(i).toString();
             }
         }
         return ret;
