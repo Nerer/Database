@@ -33,7 +33,7 @@ public class Tuple implements Serializable {
         fieldList = new ArrayList<>();
         for (int i = 0; i < td.numFields(); i++) {
             if (td.getFieldType(i).equals(stringType)) {
-                fieldList.add(new StringField(null, 128));
+                fieldList.add(new StringField("", 128));
             } else {
                 fieldList.add(new IntField(0));
             }

@@ -56,7 +56,7 @@ public class HeapPage implements Page {
             //System.out.println(Byte.toString(dis.readByte()));
 
         }
-        
+
         tuples = new Tuple[numSlots];
         try{
             // allocate and read the actual records of this page
@@ -71,9 +71,9 @@ public class HeapPage implements Page {
     }
 
     /** Retrieve the number of tuples on this page.
-        @return the number of tuples on this page
-    */
-    private int getNumTuples() {        
+     @return the number of tuples on this page
+     */
+    private int getNumTuples() {
         // some code goes here
         int tupleSize = td.getSize();
         int tupleNumber = BufferPool.getPageSize() * 8 / (tupleSize * 8 + 1);
@@ -91,11 +91,11 @@ public class HeapPage implements Page {
         // some code goes here
         int ret = (tupleNumber + 7) / 8;
         return ret;
-                 
+
     }
-    
+
     /** Return a view of this page before it was modified
-        -- used by recovery */
+     -- used by recovery */
     public HeapPage getBeforeImage(){
         try {
             byte[] oldDataRef = null;
@@ -111,11 +111,11 @@ public class HeapPage implements Page {
         }
         return null;
     }
-    
+
     public void setBeforeImage() {
         synchronized(oldDataLock)
         {
-        oldData = getPageData().clone();
+            oldData = getPageData().clone();
         }
     }
 
@@ -123,9 +123,9 @@ public class HeapPage implements Page {
      * @return the PageId associated with this page.
      */
     public HeapPageId getId() {
-    // some code goes here
+        // some code goes here
         return pid;
-    //throw new UnsupportedOperationException("implement this");
+        //throw new UnsupportedOperationException("implement this");
     }
 
     /**
@@ -209,7 +209,7 @@ public class HeapPage implements Page {
                 Field f = tuples[i].getField(j);
                 try {
                     f.serialize(dos);
-                
+
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -261,13 +261,15 @@ public class HeapPage implements Page {
         if (getNumEmptySlots() == getNumTuples()) {
             throw new DbException("Already empty");
         }
-        for (int i = 0; i < numSlots; i++) {
-            if (isSlotUsed(i) && tuples[i].equals(t)) {
-                markSlotUsed(i, false);
-                return;
-            }
+        if (!this.pid.equals(t.getRecordId().getPageId())) {
+            throw new DbException("Tuple is not on this page.");
         }
-        throw new DbException("No tuple to delete");
+        if (!isSlotUsed(t.getRecordId().tupleno())) {
+            throw new DbException("Tuple slot is already empty.");
+        }
+        markSlotUsed(t.getRecordId().tupleno(), false);
+
+        // throw new DbException("No tuple to delete");
     }
 
     /**
@@ -299,7 +301,7 @@ public class HeapPage implements Page {
      */
     public void markDirty(boolean dirty, TransactionId tid) {
         // some code goes here
-	// not necessary for lab1
+        // not necessary for lab1
         this.dirty = dirty;
         this.dirtier = tid;
         if (!dirty) {
@@ -312,7 +314,7 @@ public class HeapPage implements Page {
      */
     public TransactionId isDirty() {
         // some code goes here
-	// Not necessary for lab1
+        // Not necessary for lab1
         return dirtier;
     }
 
@@ -323,15 +325,15 @@ public class HeapPage implements Page {
         // some code goes here
         int ret = getNumTuples();
         for (int i = 0; i < header.length; i++) {
-           int tmp = header[i];
-           if (tmp < 0) {
-               tmp += 256;
-           }
-           while (tmp != 0) {
+            int tmp = header[i];
+            if (tmp < 0) {
+                tmp += 256;
+            }
+            while (tmp != 0) {
                 ret--;
                 tmp = tmp & (tmp - 1);
-           }
-           //System.out.println(header[i]);
+            }
+            //System.out.println(header[i]);
         }
         return ret;
     }
